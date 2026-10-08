@@ -1,0 +1,20 @@
+[Unit]
+Description=Sincroniza o TSC das CPUs que o firmware deixou fora de sincronia
+Documentation=file:/usr/local/share/doc/tsc-sync/README.md
+# Cedo no boot, antes de qualquer programa do usuario ler o TSC: quem ja estiver
+# rodando quando a CPU 0 "pula" para frente veria o salto uma vez.
+DefaultDependencies=no
+After=systemd-modules-load.service
+Before=sysinit.target shutdown.target
+Conflicts=shutdown.target
+ConditionVirtualization=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# /dev/cpu/N/msr vem do modulo msr; o "-" deixa seguir se ele ja estiver carregado.
+ExecStartPre=-/usr/sbin/modprobe msr
+ExecStart=/usr/local/sbin/tsc-sync sync --quiet
+
+[Install]
+WantedBy=sysinit.target

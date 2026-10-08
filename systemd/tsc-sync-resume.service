@@ -1,0 +1,15 @@
+[Unit]
+Description=Confere e sincroniza o TSC das CPUs ao voltar da suspensao
+Documentation=file:/usr/local/share/doc/tsc-sync/README.md
+# O firmware pode reiniciar o TSC ao acordar. Se tudo ja estiver sincronizado,
+# o tsc-sync so mede e sai sem gravar nada.
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+ConditionVirtualization=no
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/sbin/modprobe msr
+ExecStart=/usr/local/sbin/tsc-sync sync --quiet
+
+[Install]
+WantedBy=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
